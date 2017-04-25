@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.bigdata.flinkconsumer;
+package com.bigdata.hbaseConsultor;
 
 import com.bigdata.conexion.ConexionFactory;
 import com.bigdata.hbase.HBase;
