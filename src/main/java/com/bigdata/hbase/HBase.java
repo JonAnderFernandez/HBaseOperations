@@ -53,53 +53,14 @@ public class HBase{
         pool.returnObject(c);   
     }     
     ////////////////////////////////////////////////////////////////////////////
-    // METODOS EN PRUEBA
-    public Map<String, String> getDescription() throws Exception{
+    // Leer descripcion de la tabla
+    public void getDescription() throws Exception{
         Connection c = pool.borrowObject();
-        Admin admin = c.getAdmin();
-        TableName tableName = TableName.valueOf(this.table);      
-        HTableDescriptor htd = admin.getTableDescriptor(tableName);                
-        Map<String, String> descripcion = new HashMap<>();
-        descripcion.put("tableAvailable", String.valueOf(admin.isTableEnabled(tableName)));
-        descripcion.put("tableName", htd.getTableName().toString());                                                        
-        pool.returnObject(c);           
-        return descripcion;
-    }   
-    
-    public void getRows(int i) throws Exception{
-        Connection c = pool.borrowObject();
-        TableName tableName = TableName.valueOf(this.table);                 
-        Table t = c.getTable(tableName);
-        Scan s = new Scan();
-        ResultScanner scanner = t.getScanner(s);
-        int j = 0;
-        for (Result result = scanner.next(); result != null && j < i; result = scanner.next()){   
-            Result getResult = t.get(new Get(result.getRow()));
-            String value = Bytes.toString(getResult.getValue(Bytes.toBytes("msg"), Bytes.toBytes("sender")));
-            System.out.println(value);            
-            j++;
-        }        
-        scanner.close();
-        /*
-        byte[] columnMin = Bytes.toBytes(200);
-        byte[] columnMax = Bytes.toBytes(300);
-        byte[] cf = Bytes.toBytes("familyName");
-        byte[] column = Bytes.toBytes("columnNameToBeFiltered");
-        Scan scan = new Scan();
-        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
-                cf, column, CompareOp.GREATER, columnMin);
-        list.addFilter(filter1);
-        SingleColumnValueFilter filter2 = new SingleColumnValueFilter(
-                cf, column, CompareOp.LESS, columnMax);
-        list.addFilter(filter2);
-        scan.setFilter(list);
-        ResultScanner scanner = t.getScanner(scan);
-        */
-        t.close();
-        pool.returnObject(c);   
-    }  
-    ////////////////////////////////////////////////////////////////////////////
+        Admin admin = c.getAdmin(); 
+        HTableDescriptor htd = admin.getTableDescriptor(TableName.valueOf(this.table));
+        System.out.println(Bytes.toString(htd.toByteArray()));
+        pool.returnObject(c);    
+    }    
     // Leer los primeros i registros de la tabla
     public void getLimitRows(int i) throws Exception{
         Connection c = pool.borrowObject();              
@@ -147,9 +108,9 @@ public class HBase{
         SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
                 Bytes.toBytes(colF), Bytes.toBytes(colQ), CompareOp.EQUAL, Bytes.toBytes(4));
         list.addFilter(filter1);
-        //SingleColumnValueFilter filter2 = new SingleColumnValueFilter(
-        //        Bytes.toBytes(colF), Bytes.toBytes(colQ), CompareOp.EQUAL, Bytes.toBytes(5));
-        //list.addFilter(filter2);        
+            //SingleColumnValueFilter filter2 = new SingleColumnValueFilter(
+            //        Bytes.toBytes(colF), Bytes.toBytes(colQ), CompareOp.EQUAL, Bytes.toBytes(5));
+            //list.addFilter(filter2);        
         scan.setFilter(list);
         
         ResultScanner scanner = t.getScanner(scan);        
