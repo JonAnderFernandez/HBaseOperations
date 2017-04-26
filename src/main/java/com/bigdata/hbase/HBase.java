@@ -6,7 +6,6 @@
 package com.bigdata.hbase;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.commons.pool2.ObjectPool;
@@ -14,15 +13,16 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.filter.ValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 /**
  *
@@ -102,21 +102,28 @@ public class HBase{
     public void getFilterRows(String colF, String colQ) throws Exception{
         Connection c = pool.borrowObject();                 
         Table t = c.getTable(TableName.valueOf(this.table));
-        Scan scan = new Scan();
-        
+        Scan scan = new Scan();        
         FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE);        
-        SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
-                Bytes.toBytes(colF), Bytes.toBytes(colQ), CompareOp.EQUAL, Bytes.toBytes(4));
-        list.addFilter(filter1);
-            //SingleColumnValueFilter filter2 = new SingleColumnValueFilter(
-            //        Bytes.toBytes(colF), Bytes.toBytes(colQ), CompareOp.EQUAL, Bytes.toBytes(5));
-            //list.addFilter(filter2);        
-        scan.setFilter(list);
-        
+        Filter f1 = new ValueFilter(
+                CompareOp.EQUAL, 
+                new BinaryComparator(Bytes.toBytes("4")));
+        list.addFilter(f1);       
+        Filter f2 = new ValueFilter(
+                CompareOp.EQUAL, 
+                new BinaryComparator(Bytes.toBytes("5")));
+        list.addFilter(f2);      
+        scan.setFilter(list);        
         ResultScanner scanner = t.getScanner(scan);        
-        for (Result result = scanner.next(); result != null; result = scanner.next()){               
-            String value = Bytes.toString(result.getValue(Bytes.toBytes(colF), Bytes.toBytes(colQ)));
-            System.out.println(value);     
+        for (Result result = scanner.next(); result != null; result = scanner.next()){   
+            Map<byte[],byte[]> qualifiers = result.getFamilyMap(Bytes.toBytes("msg"));
+            for(int k = 0; k < qualifiers.size(); k++){
+                Object[] values = qualifiers.values().toArray();
+                Object[] keys = qualifiers.keySet().toArray();                
+                String key = Bytes.toString((byte[]) keys[k]);
+                String value = Bytes.toString((byte[]) values[k]);
+                System.out.println("KEY = " + Bytes.toString(result.getRow()) + " [msg:" + key + "] =  " + value);            
+            }
+            System.out.println("------------------------------------------------------------------------");          
         }        
         scanner.close();
         t.close();
