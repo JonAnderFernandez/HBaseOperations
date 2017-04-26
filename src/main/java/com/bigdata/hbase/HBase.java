@@ -36,7 +36,7 @@ public class HBase{
         this.pool = pool;
         this.table = table;
     }   
-    // Insertar un registro    
+  
     public void writeIntoTable(String colFamily, String colQualifier, String value) throws Exception{
         Connection c = pool.borrowObject();
         TableName tableName = TableName.valueOf(this.table); 
@@ -52,8 +52,7 @@ public class HBase{
         t.close();
         pool.returnObject(c);   
     }     
-    ////////////////////////////////////////////////////////////////////////////
-    // Leer descripcion de la tabla
+
     public void getDescription() throws Exception{
         Connection c = pool.borrowObject();
         Admin admin = c.getAdmin(); 
@@ -61,7 +60,7 @@ public class HBase{
         System.out.println(Bytes.toString(htd.toByteArray()));
         pool.returnObject(c);    
     }    
-    // Leer los primeros i registros de la tabla
+
     public void getLimitRows(int i) throws Exception{
         Connection c = pool.borrowObject();              
         Table t = c.getTable(TableName.valueOf(this.table));
@@ -84,7 +83,7 @@ public class HBase{
         t.close();
         pool.returnObject(c);   
     } 
-    // Leer un valor de las filas de la tabla
+
     public void getValue(String colF, String colQ) throws Exception{
         Connection c = pool.borrowObject();             
         Table t = c.getTable(TableName.valueOf(this.table));
@@ -98,7 +97,7 @@ public class HBase{
         t.close();
         pool.returnObject(c);   
     } 
-    // Leer filtrando los registros de la tabla
+
     public void getFilterRows() throws Exception{
         Connection c = pool.borrowObject();                 
         Table t = c.getTable(TableName.valueOf(this.table));
@@ -129,7 +128,7 @@ public class HBase{
         t.close();
         pool.returnObject(c);   
     }  
-    // Actualizar row
+
     public void updateRow(String row, String colFamily, String colQualifier, String value) throws Exception{
         Connection c = pool.borrowObject();
         Table t = c.getTable(TableName.valueOf(this.table));
