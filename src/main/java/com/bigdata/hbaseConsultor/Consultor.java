@@ -26,7 +26,7 @@ public class Consultor {
                 new GenericObjectPool<>(new ConexionFactory()), 
                 "syslog");
         try {
-            hb.getFilterRows("msg", "severity");
+            hb.getFilterRows();
         } catch (Exception ex) {
             Logger.getLogger(Consultor.class.getName()).log(Level.SEVERE, null, ex);
         }        

@@ -99,7 +99,7 @@ public class HBase{
         pool.returnObject(c);   
     } 
     // Leer filtrando los registros de la tabla
-    public void getFilterRows(String colF, String colQ) throws Exception{
+    public void getFilterRows() throws Exception{
         Connection c = pool.borrowObject();                 
         Table t = c.getTable(TableName.valueOf(this.table));
         Scan scan = new Scan();        
